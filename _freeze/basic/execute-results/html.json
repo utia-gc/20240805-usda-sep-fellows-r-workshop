@@ -1,0 +1,15 @@
+{
+  "hash": "48c21fd84cfbf68690b824d24703752c",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# Basic Analysis\n\n## Introduction\n\nThis page introduces a brief, basic analysis of grass weights using R.\n\nThe workflow for a basic analysis consists of two main steps:\n\n1. Preparing the data --- Raw data is read into R and processed into data that is in a format that we can analyze.\n2. Analyzing the data --- Data is visualized to create plots and tables, and a formal statistical analysis is performed.\n\nWe can visualize the steps of this workflow with a graph:\n\n\n```{mermaid}\nflowchart TB\n    data_file[(\"Data file\")]\n    read_data[Read data\\ninto R]\n    wrangle_data[\"Clean/format\\ndata\"]\n    cleaned_data>\"Analysis-ready\\ndata\"]\n\n    subgraph \"Prepare data\"\n        data_file --- read_data --- wrangle_data --> cleaned_data\n    end\n\n    viz_data[\"Visualize data\"]\n    visualizations>\"Plots &\\ntables\"]\n    stat_ansys[\"Statistical analysis\"]\n    ansys_res>\"Analysis results\"]\n    \n    subgraph \"Analyze data\"\n        cleaned_data --- viz_data --> visualizations\n        cleaned_data --- stat_ansys --> ansys_res\n    end\n```\n\n::: {.cell}\n\n```{.r .cell-code}\ngrasses <- read.csv(\"https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv\")\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

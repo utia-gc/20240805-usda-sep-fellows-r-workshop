@@ -1,0 +1,34 @@
+# Basic Analysis
+
+## Introduction
+
+This page introduces a brief, basic analysis of grass weights using R.
+
+The workflow for a basic analysis consists of two main steps:
+
+1. Preparing the data --- Raw data is read into R and processed into data that is in a format that we can analyze.
+2. Analyzing the data --- Data is visualized to create plots and tables, and a formal statistical analysis is performed.
+
+We can visualize the steps of this workflow with a graph:
+
+```{mermaid}
+flowchart TB
+    data_file[("Data file")]
+    read_data[Read data\ninto R]
+    wrangle_data["Clean/format\ndata"]
+    cleaned_data>"Analysis-ready\ndata"]
+
+    subgraph "Prepare data"
+        data_file --- read_data --- wrangle_data --> cleaned_data
+    end
+
+    viz_data["Visualize data"]
+    visualizations>"Plots &\ntables"]
+    stat_ansys["Statistical analysis"]
+    ansys_res>"Analysis results"]
+    
+    subgraph "Analyze data"
+        cleaned_data --- viz_data --> visualizations
+        cleaned_data --- stat_ansys --> ansys_res
+    end
+```

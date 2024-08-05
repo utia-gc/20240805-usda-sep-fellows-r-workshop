@@ -32,3 +32,35 @@ flowchart TB
         cleaned_data --- stat_ansys --> ansys_res
     end
 ```
+
+
+## Prepare data
+
+This section contains the first of the main steps laid out above: preparing the data for analysis.
+
+The goal of this section is to take a raw data file and process it in R so that we have data available in our R session that we can directly use as input for our exploratory and formal data analysis.
+
+
+### Read data into R
+
+Read data
+: The process of loading data from a file, database, or other location meant for long term storage into a short-lived form that we work with in a program.
+
+I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv>.
+By looking at the file name (`grasses.csv`) and checking the data ourselves, we can see that this file is in comma separated value (CSV) format.
+
+::: {.callout-warning}
+Using a file available on the internet is convenient for a task like this workshop.
+R can directly read certain types of files from the internet, so we don't have to worry about downloading files, finding where they downloaded on everyone's computer, and reading them in from the correct location.
+
+However, managing downloads and finding data on your computer is an important part of performing analysis on your own, and it can be tricky for beginners.
+I recommend that you develop a system for keeping track of all of your data files associated with each project.
+Personally, I prefer having different folders on my computer for each project, and inside of each project folder I have a `data/` folder where I keep all of my data files.
+But that is just my preference, and you may prefer a different setup.
+What's important is finding a way that works for you!
+:::
+
+```{r}
+# read grasses data as csv from URL
+grasses <- read.csv("https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv")
+```

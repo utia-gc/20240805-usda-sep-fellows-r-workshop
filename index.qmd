@@ -1,6 +1,4 @@
----
-title: "."
----
+# USDA SEP Fellows R Workshop
 
 This is a Quarto website.
 

@@ -21,7 +21,7 @@ flowchart TB
     subgraph "Prepare data"
         data_file --- read_data --- wrangle_data --> cleaned_data
     end
-
+  
     viz_data["Visualize data"]
     visualizations>"Plots &\ntables"]
     stat_ansys["Statistical analysis"]

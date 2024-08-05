@@ -162,6 +162,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#read-data-into-r" id="toc-read-data-into-r" class="nav-link" data-scroll-target="#read-data-into-r">Read data into R</a></li>
   <li><a href="#cleanformat-data" id="toc-cleanformat-data" class="nav-link" data-scroll-target="#cleanformat-data">Clean/format data</a></li>
   </ul></li>
+  <li><a href="#analyze-data" id="toc-analyze-data" class="nav-link" data-scroll-target="#analyze-data">Analyze data</a>
+  <ul class="collapse">
+  <li><a href="#visualize-data" id="toc-visualize-data" class="nav-link" data-scroll-target="#visualize-data">Visualize data</a></li>
+  <li><a href="#statistical-analysis" id="toc-statistical-analysis" class="nav-link" data-scroll-target="#statistical-analysis">Statistical analysis</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -226,7 +231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 The process of loading data from a file, database, or other location meant for long term storage into a short-lived form that we work with in a program.
 </dd>
 </dl>
-<p>I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <a href="https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv" class="uri">https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv</a>. By looking at the file name (<code>grasses.csv</code>) and checking the data ourselves, we can see that this file is in comma separated value (CSV) format.</p>
+<p>I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <a href="https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/b_only.csv" class="uri">https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/b_only.csv</a>. By looking at the file name (<code>grasses.csv</code>) and checking the data ourselves, we can see that this file is in comma separated value (CSV) format.</p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -242,8 +247,10 @@ Warning
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read grasses data as csv from URL</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>grasses <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read b_only data as csv from URL</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>combined <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>b_only <span class="ot">&lt;-</span> combined[combined<span class="sc">$</span>PERSON <span class="sc">==</span> <span class="st">"Boussad"</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="cleanformat-data" class="level3">
@@ -254,7 +261,31 @@ Warning
 The act of transforming data from its current format into the structure needed for the intended analysis. This can also include data processing steps such as dropping or filling in missing values, computing new values from the data, etc.
 </dd>
 </dl>
-<p>Our data is actually already in the format needed for our downstream analyses, so we won’t actually do any cleaning steps here. This is a good place to talk generally about data cleaning and how to check the data to make sure it’s in the structure that we need.</p>
+<p>Our data is actually already in the format needed for our downstream analyses, so our cleaning steps here are rather light. Mainly, they just help us get categorical variables set up in the order we want for plotting and statistical testing.</p>
+<p>R encodes categorical variables in what it calls <code>factors</code>. These <code>factors</code> are inherently ordered – oftentimes this order doesn’t matter, but it controls what our “reference level” is in some statistical tests. This won’t change the results themselves, but we have to be careful about interpreting the results correctly in terms of the reference level.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Encoding factors">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Encoding factors
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When we don’t care about the reference level of a factor, we can make the data a factor with the <code>as.factor()</code> function and let R take care of setting the levels for us.</p>
+<p>However, when we do care about the reference level, we should set the levels ourselves with the <code>factor()</code> function and make sure to use the <code>levels</code> argument.</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># recode categorical variables as factors one column at a time</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>b_only<span class="sc">$</span>PERSON <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(b_only<span class="sc">$</span>PERSON)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>b_only<span class="sc">$</span>GRASS <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(b_only<span class="sc">$</span>GRASS)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>b_only<span class="sc">$</span>BLOCK <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(b_only<span class="sc">$</span>BLOCK)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>b_only<span class="sc">$</span>TREATMENT <span class="ot">&lt;-</span> <span class="fu">factor</span>(b_only<span class="sc">$</span>TREATMENT, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Dry"</span>, <span class="st">"Liq"</span>, <span class="st">"Nod"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This is a good place to talk generally about data cleaning and how to check the data to make sure it’s in the structure that we need.</p>
 <p>To start, we have to know what format we have, and what format we need. There is no “one size fits all” data structure that we need; different analyses require input data to be structured in different ways. A key part of working with data in R is knowing how to process data from the structure that you have into the structure that you need. This means you must work through tutorials and read the documentation for the analysis tools you work with.</p>
 <p>However, one general structure that is very common for analyzing data in R is the <code>data.frame</code>. This is the format of the data that we have read in, and it’s what many functions take as input data.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Visualizing data in a `data.frame`">
@@ -268,11 +299,172 @@ Visualizing data in a <code>data.frame</code>
 </div>
 <div class="callout-body-container callout-body">
 <p>The most direct way to figure out how your data is structured is to simply look at it. When you’re interactively performing an analysis in RStudio, I recommend two simple ways of looking at your data by running the following in the Console pane:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show the contents of the data.frame directly in the Console</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>grasses</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># open an interactive view of the data.frame as a table</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(grasses)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show the contents of the data.frame directly in the Console</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>b_only</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># open an interactive view of the data.frame as a table</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(b_only)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="analyze-data" class="level2">
+<h2 class="anchored" data-anchor-id="analyze-data">Analyze data</h2>
+<p>Now it’s time for the fun part: analyzing the data!</p>
+<p>This is where we turn all of the hard work of experimental design and setup, data collection, and data processing into (hopefully) insights that we can use to test hypotheses, generate further hypotheses, and contribute to the body of knowledge about a subject!</p>
+<section id="visualize-data" class="level3">
+<h3 class="anchored" data-anchor-id="visualize-data">Visualize data</h3>
+<p>The data should be visualized before any formal analysis is carried out. Here are just a few examples of the benefits of exploratory analysis:</p>
+<ul>
+<li>Identify issues with data</li>
+<li>Identify and explore relationships between variables</li>
+<li>Generate hypotheses</li>
+<li>Check assumptions of formal hypothesis tests</li>
+</ul>
+<section id="summary-table" class="level4">
+<h4 class="anchored" data-anchor-id="summary-table">Summary table</h4>
+<p>R makes it very easy to generate a summary of our data:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># generate a summary of the data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(b_only)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Date           PERSON    GRASS      TREATMENT BLOCK    WEIGHT.g       
+ Min.   :45504   Boussad:24   Teff:24   Control:6   1:4   Min.   :0.001000  
+ 1st Qu.:45504                          Dry    :6   2:4   1st Qu.:0.007175  
+ Median :45504                          Liq    :6   3:4   Median :0.010100  
+ Mean   :45504                          Nod    :6   4:4   Mean   :0.011575  
+ 3rd Qu.:45504                                      5:4   3rd Qu.:0.017250  
+ Max.   :45504                                      6:4   Max.   :0.025100  </code></pre>
+</div>
+</div>
+<p>Note that the ‘Mean’ and ‘Max’ weights are well above the ‘3rd Quartile’. This indicates that the data is probably not normally distributed. We will have to check this further in our exploratory analysis.</p>
+</section>
+<section id="contingency-tables" class="level4">
+<h4 class="anchored" data-anchor-id="contingency-tables">Contingency tables</h4>
+<p>Contingency tables help us explore the number of samples that are associated with categorical variables. This helps us think about sample sizes and allows us to “sanity check” our data.</p>
+<p>Contingency tables may be simple and consider only a single variable:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simple single variable contingency tables</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> PERSON, <span class="at">data =</span> b_only)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>PERSON
+Boussad 
+     24 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> GRASS, <span class="at">data =</span> b_only)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>GRASS
+Teff 
+  24 </code></pre>
+</div>
+</div>
+<p>Or they may consider multiple variables and allow us to check that our samples are distributed as we expect:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># simple single variable contingency tables</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> PERSON <span class="sc">+</span> GRASS, <span class="at">data =</span> b_only)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         GRASS
+PERSON    Teff
+  Boussad   24</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xtabs</span>(<span class="sc">~</span> BLOCK <span class="sc">+</span> GRASS <span class="sc">+</span> TREATMENT, <span class="at">data =</span> b_only)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>, , TREATMENT = Control
+
+     GRASS
+BLOCK Teff
+    1    1
+    2    1
+    3    1
+    4    1
+    5    1
+    6    1
+
+, , TREATMENT = Dry
+
+     GRASS
+BLOCK Teff
+    1    1
+    2    1
+    3    1
+    4    1
+    5    1
+    6    1
+
+, , TREATMENT = Liq
+
+     GRASS
+BLOCK Teff
+    1    1
+    2    1
+    3    1
+    4    1
+    5    1
+    6    1
+
+, , TREATMENT = Nod
+
+     GRASS
+BLOCK Teff
+    1    1
+    2    1
+    3    1
+    4    1
+    5    1
+    6    1</code></pre>
+</div>
+</div>
+<p>For example, we see above that all of the Teff grass was collected by Boussad while all the Crabgrass was collected by Zahia.</p>
+<p>Additionally, we can verify that we have 1 sample from each type of grass, for each treatment, from each block.</p>
+<p>These sanity checks may seem pointless or dry, but it’s imperative that we verify that we didn’t introduce any errors at any of the steps above.</p>
+</section>
+<section id="plotting-a-quantitative-variable" class="level4">
+<h4 class="anchored" data-anchor-id="plotting-a-quantitative-variable">Plotting a quantitative variable</h4>
+<p>A histogram allows us to visualize the distribution of a quantitative variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(b_only<span class="sc">$</span>WEIGHT.g, <span class="at">breaks =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="basic_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As noted above, it appears that our weight data is not normally distributed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(b_only<span class="sc">$</span>BLOCK, b_only<span class="sc">$</span>WEIGHT.g)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="basic_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(b_only<span class="sc">$</span>TREATMENT, b_only<span class="sc">$</span>WEIGHT.g)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="basic_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="statistical-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-analysis">Statistical analysis</h3>
+<p>Run a one-tailed ANOVA</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">aov</span>(WEIGHT.g <span class="sc">~</span> BLOCK <span class="sc">+</span> TREATMENT, <span class="at">data =</span> b_only)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Df    Sum Sq   Mean Sq F value Pr(&gt;F)  
+BLOCK        5 0.0002450 4.899e-05   2.339 0.0928 .
+TREATMENT    3 0.0002515 8.382e-05   4.001 0.0281 *
+Residuals   15 0.0003142 2.095e-05                 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 

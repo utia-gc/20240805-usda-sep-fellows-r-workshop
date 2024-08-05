@@ -46,7 +46,7 @@ The goal of this section is to take a raw data file and process it in R so that 
 Read data
 : The process of loading data from a file, database, or other location meant for long term storage into a short-lived form that we work with in a program.
 
-I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv>.
+I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/b_only.csv>.
 By looking at the file name (`grasses.csv`) and checking the data ourselves, we can see that this file is in comma separated value (CSV) format.
 
 ::: {.callout-warning}
@@ -61,8 +61,10 @@ What's important is finding a way that works for you!
 :::
 
 ```{r} 
-# read grasses data as csv from URL
-grasses <- read.csv("https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv")
+# read b_only data as csv from URL
+combined <- read.csv("https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv")
+
+b_only <- combined[combined$PERSON == "Boussad", ]
 ```
 
 
@@ -72,7 +74,29 @@ Clean data
 : The act of transforming data from its current format into the structure needed for the intended analysis.
   This can also include data processing steps such as dropping or filling in missing values, computing new values from the data, etc.
   
-Our data is actually already in the format needed for our downstream analyses, so we won't actually do any cleaning steps here.
+Our data is actually already in the format needed for our downstream analyses, so our cleaning steps here are rather light.
+Mainly, they just help us get categorical variables set up in the order we want for plotting and statistical testing.
+
+R encodes categorical variables in what it calls `factors`.
+These `factors` are inherently ordered -- oftentimes this order doesn't matter, but it controls what our "reference level" is in some statistical tests.
+This won't change the results themselves, but we have to be careful about interpreting the results correctly in terms of the reference level.
+
+::: {.callout-tip title="Encoding factors"}
+When we don't care about the reference level of a factor, we can make the data a factor with the `as.factor()` function and let R take care of setting the levels for us.
+
+However, when we do care about the reference level, we should set the levels ourselves with the `factor()` function and make sure to use the `levels` argument.
+:::
+
+```{r}
+# recode categorical variables as factors one column at a time
+b_only$PERSON <- as.factor(b_only$PERSON)
+b_only$GRASS <- as.factor(b_only$GRASS)
+b_only$BLOCK <- as.factor(b_only$BLOCK)
+
+b_only$TREATMENT <- factor(b_only$TREATMENT, levels = c("Control", "Dry", "Liq", "Nod"))
+```
+
+
 This is a good place to talk generally about data cleaning and how to check the data to make sure it's in the structure that we need.
 
 To start, we have to know what format we have, and what format we need.
@@ -89,9 +113,94 @@ When you're interactively performing an analysis in RStudio, I recommend two sim
 
 ```{.r}
 # show the contents of the data.frame directly in the Console
-grasses
+b_only
 
 # open an interactive view of the data.frame as a table
-View(grasses)
+View(b_only)
 ```
 :::
+
+
+## Analyze data
+
+Now it's time for the fun part: analyzing the data!
+
+This is where we turn all of the hard work of experimental design and setup, data collection, and data processing into (hopefully) insights that we can use to test hypotheses, generate further hypotheses, and contribute to the body of knowledge about a subject!
+
+### Visualize data
+
+The data should be visualized before any formal analysis is carried out.
+Here are just a few examples of the benefits of exploratory analysis:
+
+* Identify issues with data
+* Identify and explore relationships between variables
+* Generate hypotheses
+* Check assumptions of formal hypothesis tests
+
+#### Summary table
+
+R makes it very easy to generate a summary of our data:
+
+```{r}
+# generate a summary of the data
+summary(b_only)
+```
+
+Note that the 'Mean' and 'Max' weights are well above the '3rd Quartile'.
+This indicates that the data is probably not normally distributed.
+We will have to check this further in our exploratory analysis.
+
+#### Contingency tables
+
+Contingency tables help us explore the number of samples that are associated with categorical variables.
+This helps us think about sample sizes and allows us to "sanity check" our data.
+
+Contingency tables may be simple and consider only a single variable:
+
+```{r}
+# simple single variable contingency tables
+xtabs(~ PERSON, data = b_only)
+xtabs(~ GRASS, data = b_only)
+```
+
+Or they may consider multiple variables and allow us to check that our samples are distributed as we expect:
+
+```{r}
+# simple single variable contingency tables
+xtabs(~ PERSON + GRASS, data = b_only)
+xtabs(~ BLOCK + GRASS + TREATMENT, data = b_only)
+```
+
+For example, we see above that all of the Teff grass was collected by Boussad while all the Crabgrass was collected by Zahia.
+
+Additionally, we can verify that we have 1 sample from each type of grass, for each treatment, from each block.
+
+These sanity checks may seem pointless or dry, but it's imperative that we verify that we didn't introduce any errors at any of the steps above.
+
+
+#### Plotting a quantitative variable
+
+A histogram allows us to visualize the distribution of a quantitative variable.
+
+```{r}
+hist(b_only$WEIGHT.g, breaks = 12)
+```
+
+As noted above, it appears that our weight data is not normally distributed.
+
+```{r}
+plot(b_only$BLOCK, b_only$WEIGHT.g)
+
+plot(b_only$TREATMENT, b_only$WEIGHT.g)
+```
+
+
+### Statistical analysis
+
+Run a one-tailed ANOVA
+
+```{r}
+fit <- aov(WEIGHT.g ~ BLOCK + TREATMENT, data = b_only)
+summary(fit)
+```
+

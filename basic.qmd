@@ -60,7 +60,38 @@ But that is just my preference, and you may prefer a different setup.
 What's important is finding a way that works for you!
 :::
 
-```{r}
+```{r} 
 # read grasses data as csv from URL
 grasses <- read.csv("https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv")
 ```
+
+
+### Clean/format data
+
+Clean data
+: The act of transforming data from its current format into the structure needed for the intended analysis.
+  This can also include data processing steps such as dropping or filling in missing values, computing new values from the data, etc.
+  
+Our data is actually already in the format needed for our downstream analyses, so we won't actually do any cleaning steps here.
+This is a good place to talk generally about data cleaning and how to check the data to make sure it's in the structure that we need.
+
+To start, we have to know what format we have, and what format we need.
+There is no "one size fits all" data structure that we need; different analyses require input data to be structured in different ways.
+A key part of working with data in R is knowing how to process data from the structure that you have into the structure that you need.
+This means you must work through tutorials and read the documentation for the analysis tools you work with.
+
+However, one general structure that is very common for analyzing data in R is the `data.frame`.
+This is the format of the data that we have read in, and it's what many functions take as input data.
+
+::: {.callout-tip title="Visualizing data in a `data.frame`"}
+The most direct way to figure out how your data is structured is to simply look at it.
+When you're interactively performing an analysis in RStudio, I recommend two simple ways of looking at your data by running the following in the Console pane:
+
+```{.r}
+# show the contents of the data.frame directly in the Console
+grasses
+
+# open an interactive view of the data.frame as a table
+View(grasses)
+```
+:::

@@ -46,7 +46,7 @@ The goal of this section is to take a raw data file and process it in R so that 
 Read data
 : The process of loading data from a file, database, or other location meant for long term storage into a short-lived form that we work with in a program.
 
-I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/b_only.csv>.
+I have made the raw data file in available online on a code and data hosting platform called GitHub at the following URL: <https://github.com/utia-gc/20240805-usda-sep-fellows-r-workshop/raw/main/data/grasses.csv>.
 By looking at the file name (`grasses.csv`) and checking the data ourselves, we can see that this file is in comma separated value (CSV) format.
 
 ::: {.callout-warning}

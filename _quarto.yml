@@ -1,5 +1,6 @@
 project:
   type: website
+  pre-render: src/R/combine-data-tables.R
 
 website:
   title: "USDA SEP Fellows R Workshop"
